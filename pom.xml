@@ -10,7 +10,7 @@
 
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.1.1</version>
+	<version>0.1.2-SNAPSHOT</version>
 	<packaging>jar</packaging>
 
 	<name>ddth-zookeeper</name>
