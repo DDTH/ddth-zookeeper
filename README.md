@@ -3,8 +3,6 @@ ddth-zookeeper
 
 DDTH's ZooKeeper Libraries and Utilities: simplify ZooKeeper's usage.
 
-By Thanh Ba Nguyen (btnguyen2k (at) gmail.com)
-
 Project home:
 [https://github.com/DDTH/ddth-zookeeper](https://github.com/DDTH/ddth-zookeeper)
 
@@ -13,9 +11,9 @@ For OSGi environment, see [ddth-osgizookeeper](https://github.com/DDTH/ddth-osgi
 
 ## License ##
 
-See LICENSE.txt for details. Copyright (c) 2013 Thanh Ba Nguyen.
+See LICENSE.txt for details. Copyright (c) 2014 Thanh Ba Nguyen.
 
-Third party libraries are distributed under their own license(s).
+Third party libraries are distributed under their own licenses.
 
 
 ## Installation #
