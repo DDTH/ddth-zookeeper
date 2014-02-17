@@ -20,7 +20,7 @@ Third party libraries are distributed under their own license(s).
 
 ## Installation #
 
-Latest release version: `0.1.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.1.1`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -28,7 +28,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.1.0</version>
+	<version>0.1.1</version>
 </dependency>
 ```
 
