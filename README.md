@@ -36,6 +36,8 @@ Maven dependency:
 ```java
 // create and initialize a new ZooKeeperClient client
 ZooKeeperClient zkClient = new ZooKeeperClient("localhost:2181");
+zkClient.init(); //don't forget to initialize the client
+
 String path;
 boolean status;
 String data;
