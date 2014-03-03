@@ -18,7 +18,7 @@ Third party libraries are distributed under their own licenses.
 
 ## Installation #
 
-Latest release version: `0.1.1`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.2.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -26,12 +26,14 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.1.1</version>
+	<version>0.2.0</version>
 </dependency>
 ```
 
 
 ## Usage ##
+
+Simple usage:
 
 ```java
 // create and initialize a new ZooKeeperClient client
@@ -68,4 +70,13 @@ data = zkClient.getData(path); //returns "grandchild3 - content"
 
 // destroy ZooKeeperClient object when finish
 zkClient.destroy();
+```
+
+Working with [Apache Curator](http://curator.apache.org/index.html) instance:
+
+```java
+...
+CuratorFramework framework = zkClient.curatorFramework();
+framework.create().forPath("/parent/child", new byte[0]);
+...
 ```
