@@ -1,6 +1,10 @@
 ddth-zookeeper release notes
 ==========================
 
+0.3.0 - 2014-03-17
+------------------
+- Merged with [ddth-osgizookeeper](https://github.com/DDTH/ddth-osgizookeeper) and packaged as OSGi bundle.
+
 
 0.2.0 - 2014-03-05
 ------------------

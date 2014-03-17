@@ -6,7 +6,7 @@ DDTH's ZooKeeper Libraries and Utilities: simplify ZooKeeper's usage.
 Project home:
 [https://github.com/DDTH/ddth-zookeeper](https://github.com/DDTH/ddth-zookeeper)
 
-For OSGi environment, see [ddth-osgizookeeper](https://github.com/DDTH/ddth-osgizookeeper).
+OSGi environment: since v0.3.0 `ddth-zookeeper` is packaged as an OSGi bundle.
 
 
 ## License ##
@@ -18,7 +18,7 @@ Third party libraries are distributed under their own licenses.
 
 ## Installation #
 
-Latest release version: `0.2.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.3.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -26,7 +26,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.2.0</version>
+	<version>0.3.0</version>
 </dependency>
 ```
 
