@@ -80,24 +80,37 @@ public class TestZooKeeperClient extends TestCase {
     }
 
     public static void main(String[] args) throws Exception {
-        TestingServer zkServer = new TestingServer();
+        ZooKeeperClient zkClient = new ZooKeeperClient("localhost:2181");
         try {
-            ZooKeeperClient zkClient = new ZooKeeperClient(zkServer.getConnectString());
-            try {
-                zkClient.init();
-                Object value = zkClient.curatorFramework().checkExists().forPath("/1/2/3/4/5");
-                System.out.println(value);
+            zkClient.init();
 
-                value = zkClient.getChildren("/1");
-                System.out.println(value);
-            } finally {
-                zkClient.destroy();
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+            String data = zkClient.getData("/test");
+            Thread.sleep(3000);
+            data = zkClient.getData("/test");
         } finally {
-            zkServer.close();
+            zkClient.destroy();
         }
+
+        // TestingServer zkServer = new TestingServer();
+        // try {
+        // ZooKeeperClient zkClient = new
+        // ZooKeeperClient(zkServer.getConnectString());
+        // try {
+        // zkClient.init();
+        // Object value =
+        // zkClient.curatorFramework().checkExists().forPath("/1/2/3/4/5");
+        // System.out.println(value);
+        //
+        // value = zkClient.getChildren("/1");
+        // System.out.println(value);
+        // } finally {
+        // zkClient.destroy();
+        // }
+        // } catch (Exception e) {
+        // e.printStackTrace();
+        // } finally {
+        // zkServer.close();
+        // }
     }
 
 }

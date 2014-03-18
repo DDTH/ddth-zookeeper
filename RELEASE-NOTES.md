@@ -1,6 +1,12 @@
 ddth-zookeeper release notes
 ==========================
 
+0.3.1 - 2014-03-18
+------------------
+- Improve caching.
+- New method `Object ZooKeeperClient.getDataJson(String)`.
+
+
 0.3.0 - 2014-03-17
 ------------------
 - Merged with [ddth-osgizookeeper](https://github.com/DDTH/ddth-osgizookeeper) and packaged as OSGi bundle.

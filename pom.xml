@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -41,10 +42,10 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<version.java>1.6</version.java>
-		<version.guava>11.0</version.guava>
+		<version.guava>13.0</version.guava>
 		<version.zookeeper>3.4.6</version.zookeeper>
 		<version.curator>2.4.1</version.curator>
-		<version.ddth-commons>0.2.0</version.ddth-commons>
+		<version.ddth-commons>0.2.1</version.ddth-commons>
 	</properties>
 
 	<dependencies>
@@ -65,7 +66,6 @@
 			<groupId>com.google.guava</groupId>
 			<artifactId>guava</artifactId>
 			<version>${version.guava}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
@@ -86,28 +86,28 @@
 					<artifactId>jms</artifactId>
 				</exclusion>
 			</exclusions>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-framework</artifactId>
 			<version>${version.curator}</version>
-			<scope>provided</scope>
 		</dependency>
-
+		<dependency>
+			<groupId>org.apache.curator</groupId>
+			<artifactId>curator-recipes</artifactId>
+			<version>${version.curator}</version>
+		</dependency>
 		<dependency>
 			<groupId>org.apache.curator</groupId>
 			<artifactId>curator-client</artifactId>
 			<version>${version.curator}</version>
-			<scope>provided</scope>
 		</dependency>
 
 		<dependency>
 			<groupId>com.github.ddth</groupId>
 			<artifactId>ddth-commons</artifactId>
 			<version>${version.ddth-commons}</version>
-			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
