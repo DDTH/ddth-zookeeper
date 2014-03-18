@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -10,7 +11,7 @@
 
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.3.2-SNAPSHOT</version>
+	<version>0.3.1.1-SNAPSHOT</version>
 	<packaging>bundle</packaging>
 
 	<name>ddth-zookeeper</name>
@@ -130,7 +131,7 @@
 					<instructions>
 						<!-- <Bundle-Activator></Bundle-Activator> -->
 						<Export-Package>com.github.ddth.zookeeper</Export-Package>
-						<!-- <Import-Package>!com.sun.management,!org.jboss.netty.*,!jline.*,*</Import-Package> -->
+						<Import-Package>com.google.common.*;version="${version.guava}",*</Import-Package>
 						<!-- <Embed-Dependency>*;scope=compile|runtime</Embed-Dependency> <Embed-Transitive>false</Embed-Transitive> 
 							<Embed-Directory>lib</Embed-Directory> -->
 					</instructions>

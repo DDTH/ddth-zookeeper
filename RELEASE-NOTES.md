@@ -1,10 +1,11 @@
 ddth-zookeeper release notes
 ==========================
 
-0.3.1 - 2014-03-18
-------------------
+0.3.1.1 - 2014-03-18
+--------------------
 - Improve caching.
 - New method `Object ZooKeeperClient.getDataJson(String)`.
+- Minor POM fix.
 
 
 0.3.0 - 2014-03-17
