@@ -1,7 +1,7 @@
 ddth-zookeeper release notes
 ==========================
 
-0.3.1.2 - 2014-08-20
+0.3.1.3 - 2014-08-20
 --------------------
 - Minor update: `ZooKeeperException` now extends `RuntimeException`.
 
