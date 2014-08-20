@@ -28,6 +28,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * A simple ZooKeeper client.
@@ -186,7 +187,11 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         } catch (KeeperException.ConnectionLossException e) {
             throw new ZooKeeperException.ClientDisconnectedException();
         } catch (Exception e) {
-            throw new ZooKeeperException(e);
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
@@ -255,7 +260,11 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         } catch (KeeperException.ConnectionLossException e) {
             throw new ZooKeeperException.ClientDisconnectedException();
         } catch (Exception e) {
-            throw new ZooKeeperException(e);
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
@@ -322,7 +331,11 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
             Stat stat = curatorFramework.checkExists().forPath(path);
             return stat != null;
         } catch (Exception e) {
-            throw new ZooKeeperException(e);
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
@@ -341,7 +354,11 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {
-            throw new ZooKeeperException(e);
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
@@ -360,6 +377,19 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
                 return null;
             }
             throw new ZooKeeperException(e.getCause());
+        } catch (UncheckedExecutionException e) {
+            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
+                return null;
+            }
+            throw new ZooKeeperException(e.getCause());
+        } catch (ZooKeeperException.NodeNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
@@ -379,6 +409,19 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
                 return null;
             }
             throw new ZooKeeperException(e.getCause());
+        } catch (UncheckedExecutionException e) {
+            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
+                return null;
+            }
+            throw new ZooKeeperException(e.getCause());
+        } catch (ZooKeeperException.NodeNotFoundException e) {
+            return null;
+        } catch (Exception e) {
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
         }
     }
 
