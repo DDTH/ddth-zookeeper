@@ -11,14 +11,14 @@ OSGi environment: since v0.3.0 `ddth-zookeeper` is packaged as an OSGi bundle.
 
 ## License ##
 
-See LICENSE.txt for details. Copyright (c) 2014 Thanh Ba Nguyen.
+See LICENSE.txt for details. Copyright (c) 2014-2015 Thanh Ba Nguyen.
 
 Third party libraries are distributed under their own licenses.
 
 
 ## Installation #
 
-Latest release version: `0.3.1.3`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
+Latest release version: `0.4.0`. See [RELEASE-NOTES.md](RELEASE-NOTES.md).
 
 Maven dependency:
 
@@ -26,7 +26,7 @@ Maven dependency:
 <dependency>
 	<groupId>com.github.ddth</groupId>
 	<artifactId>ddth-zookeeper</artifactId>
-	<version>0.3.1.3</version>
+	<version>0.4.0</version>
 </dependency>
 ```
 

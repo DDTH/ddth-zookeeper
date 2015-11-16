@@ -118,6 +118,16 @@
 			<version>0.4.0</version>
 			<type>pom</type>
 		</dependency>
+		<dependency>
+			<groupId>com.github.ddth</groupId>
+			<artifactId>ddth-cache-adapter-core</artifactId>
+			<version>0.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>com.github.ddth</groupId>
+			<artifactId>ddth-dao-core</artifactId>
+			<version>0.5.0.1</version>
+		</dependency>
 	</dependencies>
 
 	<build>
@@ -125,7 +135,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
 				<configuration>
 					<source>${version.java}</source>
 					<target>${version.java}</target>
@@ -134,7 +143,6 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>2.4.0</version>
 				<extensions>true</extensions>
 				<configuration>
 					<instructions>

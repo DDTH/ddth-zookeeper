@@ -1,11 +1,11 @@
 package com.github.ddth.zookeeper;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
 import java.util.List;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.curator.framework.CuratorFramework;
 import org.apache.curator.framework.CuratorFrameworkFactory;
 import org.apache.curator.framework.api.BackgroundCallback;
@@ -22,13 +22,14 @@ import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.github.ddth.cacheadapter.ICache;
 import com.github.ddth.commons.utils.SerializationUtils;
+import com.github.ddth.dao.BaseDao;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.cache.RemovalListener;
 import com.google.common.cache.RemovalNotification;
-import com.google.common.util.concurrent.UncheckedExecutionException;
 
 /**
  * A simple ZooKeeper client.
@@ -36,7 +37,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
  * @author Thanh Ba Nguyen <bnguyen2k@gmail.com>
  * @since 0.1.0
  */
-public class ZooKeeperClient implements Watcher, BackgroundCallback {
+public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallback {
 
     private final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClient.class);
 
@@ -47,12 +48,10 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
 
     private String connectString;
     private int sessionTimeout = DEFAULT_SESSION_TIMEOUT;
-    private boolean cacheEnabled = true;
 
     private LoadingCache<String, NodeCache> cacheNodeWatcher;
 
-    private LoadingCache<String, byte[]> cacheRaw;
-    private LoadingCache<String, Object> cacheJson;
+    private String cacheNameRaw, cacheNameJson;
 
     /**
      * @since 0.2.0
@@ -89,7 +88,31 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * Gets ZooKeeper connection string.
      * 
      * @return
+     * @since 0.4.0
      */
+    protected String getConnectString() {
+        return connectString;
+    }
+
+    /**
+     * Sets ZooKeeper connection string.
+     * 
+     * @param connectString
+     * @return
+     * @since 0.4.0
+     */
+    public ZooKeeperClient setConnectString(String connectString) {
+        this.connectString = connectString;
+        return this;
+    }
+
+    /**
+     * Gets ZooKeeper connection string.
+     * 
+     * @return
+     * @deprecated since 0.4.0, use {@link #getConnectString()}
+     */
+    @Deprecated
     public String connectionString() {
         return connectString;
     }
@@ -99,7 +122,9 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * 
      * @param connectString
      * @return
+     * @deprecated since 0.4.0, use {@link #setConnectString(String)}
      */
+    @Deprecated
     public ZooKeeperClient conectionString(String connectString) {
         this.connectString = connectString;
         return this;
@@ -109,7 +134,31 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * Gets ZooKeeper session timeout (in milliseconds).
      * 
      * @return
+     * @since 0.4.0
      */
+    protected int getSessionTimeout() {
+        return sessionTimeout;
+    }
+
+    /**
+     * Sets ZooKeeper session timeout (in milliseconds).
+     * 
+     * @param sessionTimeoutMs
+     * @return
+     * @since 0.4.0
+     */
+    public ZooKeeperClient setSessionTimeout(int sessionTimeoutMs) {
+        this.sessionTimeout = sessionTimeoutMs;
+        return this;
+    }
+
+    /**
+     * Gets ZooKeeper session timeout (in milliseconds).
+     * 
+     * @return
+     * @deprecated since 0.4.0, use {@link #getSessionTimeout()}
+     */
+    @Deprecated
     public int sessionTimeout() {
         return sessionTimeout;
     }
@@ -119,29 +168,55 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * 
      * @param sessionTimeoutMillisec
      * @return
+     * @deprecated since 0.4.0, use {@link #setSessionTimeout(int)}
      */
+    @Deprecated
     public ZooKeeperClient sessionTimeout(int sessionTimeoutMillisec) {
         this.sessionTimeout = sessionTimeoutMillisec;
         return this;
     }
 
     /**
-     * Is caching enabled?
+     * Gets name of cache to store raw data fetched from ZooKeeper.
      * 
      * @return
+     * @since 0.4.0
      */
-    public boolean cacheEnabled() {
-        return cacheEnabled;
+    protected String getCacheNameRaw() {
+        return cacheNameRaw;
     }
 
     /**
-     * Enables/Disables caching.
+     * Sets name of cache to store raw data fetched from ZooKeeper.
      * 
-     * @param cacheEnabled
+     * @param cacheNameRaw
      * @return
+     * @since 0.4.0
      */
-    public ZooKeeperClient cacheEnabled(boolean cacheEnabled) {
-        this.cacheEnabled = cacheEnabled;
+    public ZooKeeperClient setCacheNameRaw(String cacheNameRaw) {
+        this.cacheNameRaw = cacheNameRaw;
+        return this;
+    }
+
+    /**
+     * Gets name of cache to store Json data fetched from ZooKeeper.
+     * 
+     * @return
+     * @since 0.4.0
+     */
+    protected String getCacheNameJson() {
+        return cacheNameJson;
+    }
+
+    /**
+     * Sets name of cache to store Json data fetched from ZooKeeper.
+     * 
+     * @param cacheNameJson
+     * @return
+     * @since 0.4.0
+     */
+    public ZooKeeperClient setCacheNameJson(String cacheNameJson) {
+        this.cacheNameJson = cacheNameJson;
         return this;
     }
 
@@ -149,20 +224,37 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * Gets the underlying {@link CuratorFramework}.
      * 
      * @return
-     * @since 0.2.0
+     * @since 0.4.0
      */
+    protected CuratorFramework getCuratorFramework() {
+        return curatorFramework;
+    }
+
+    /**
+     * Gets the underlying {@link CuratorFramework}.
+     * 
+     * @return
+     * @since 0.2.0
+     * @deprecated since 0.4.0, use {@link #getCuratorFramework()}
+     */
+    @Deprecated
     public CuratorFramework curatorFramework() {
         return curatorFramework;
     }
 
-    private final static byte[] EMPTY_BYTE_ARRAY = new byte[0];
-    private final static String[] EMPTY_STRING_ARRAY = new String[0];
-
     // private final static List<ACL> ACL = ZooDefs.Ids.OPEN_ACL_UNSAFE;
 
+    /**
+     * Creates a new node, with initial data.
+     * 
+     * @param path
+     * @param data
+     * @return
+     * @throws ZooKeeperException
+     */
     private boolean _create(String path, byte[] data) throws ZooKeeperException {
         if (data == null) {
-            data = EMPTY_BYTE_ARRAY;
+            data = ArrayUtils.EMPTY_BYTE_ARRAY;
         }
         try {
             String[] tokens = path.replaceAll("^\\/+", "").replaceAll("\\/+$", "").split("\\/");
@@ -170,15 +262,14 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
             for (int i = 0, n = tokens.length - 1; i < n; i++) {
                 _path.append("/").append(tokens[i]);
                 try {
-                    curatorFramework.create().forPath(_path.toString(), EMPTY_BYTE_ARRAY);
+                    curatorFramework.create()
+                            .forPath(_path.toString(), ArrayUtils.EMPTY_BYTE_ARRAY);
                 } catch (KeeperException.NodeExistsException e) {
                     // ignore
                 }
             }
             curatorFramework.create().forPath(path, data);
-
             _invalidateCache(path);
-
             return true;
         } catch (InterruptedException e) {
             return false;
@@ -195,6 +286,12 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         }
     }
 
+    /**
+     * Watches a node for changes.
+     * 
+     * @param path
+     * @throws ZooKeeperException
+     */
     private void _watchNode(String path) throws ZooKeeperException {
         try {
             cacheNodeWatcher.get(path);
@@ -207,12 +304,19 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         }
     }
 
+    /**
+     * Reads raw data from a node.
+     * 
+     * @param path
+     * @return
+     * @throws ZooKeeperException
+     */
     private byte[] _readRaw(String path) throws ZooKeeperException {
         try {
             byte[] data = curatorFramework.getData().forPath(path);
-            if (cacheRaw != null) {
-                _watchNode(path);
-            }
+            // if (cacheRaw != null) {
+            _watchNode(path);
+            // }
             return data;
         } catch (KeeperException.NoNodeException e) {
             return null;
@@ -227,6 +331,13 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         }
     }
 
+    /**
+     * Reads Json data from a node.
+     * 
+     * @param path
+     * @return
+     * @throws ZooKeeperException
+     */
     private Object _readJson(String path) throws ZooKeeperException {
         String jsonString = getData(path);
         try {
@@ -248,9 +359,8 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
             } else {
                 curatorFramework.setData().forPath(path, data);
             }
-            if (cacheRaw != null && result) {
-                _invalidateCache();
-                cacheRaw.put(path, data);
+            if (result) {
+                _invalidateCache(path, data);
             }
             return result;
         } catch (InterruptedException e) {
@@ -299,6 +409,8 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         return _create(path, value);
     }
 
+    private final static Charset UTF8 = Charset.forName("UTF-8");
+
     /**
      * Creates a node.
      * 
@@ -312,11 +424,7 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      * @throws ZooKeeperException
      */
     public boolean createNode(String path, String value) throws ZooKeeperException {
-        try {
-            return _create(path, value != null ? value.getBytes("UTF-8") : null);
-        } catch (UnsupportedEncodingException e) {
-            return false;
-        }
+        return _create(path, value != null ? value.getBytes(UTF8) : null);
     }
 
     /**
@@ -350,7 +458,7 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
     public String[] getChildren(String path) throws ZooKeeperException {
         try {
             List<String> result = curatorFramework.getChildren().forPath(path);
-            return result != null ? result.toArray(EMPTY_STRING_ARRAY) : null;
+            return result != null ? result.toArray(ArrayUtils.EMPTY_STRING_ARRAY) : null;
         } catch (KeeperException.NoNodeException e) {
             return null;
         } catch (Exception e) {
@@ -371,17 +479,12 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      */
     public byte[] getDataRaw(String path) throws ZooKeeperException {
         try {
-            return cacheRaw != null ? cacheRaw.get(path) : _readRaw(path);
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
-                return null;
+            byte[] data = getFromCache(cacheNameRaw, path, byte[].class);
+            if (data == null) {
+                data = _readRaw(path);
+                putToCache(cacheNameRaw, path, data);
             }
-            throw new ZooKeeperException(e.getCause());
-        } catch (UncheckedExecutionException e) {
-            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
-                return null;
-            }
-            throw new ZooKeeperException(e.getCause());
+            return data;
         } catch (ZooKeeperException.NodeNotFoundException e) {
             return null;
         } catch (Exception e) {
@@ -403,17 +506,12 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      */
     public Object getDataJson(String path) throws ZooKeeperException {
         try {
-            return cacheJson != null ? cacheJson.get(path) : _readJson(path);
-        } catch (ExecutionException e) {
-            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
-                return null;
+            Object data = getFromCache(cacheNameJson, path);
+            if (data == null) {
+                data = _readJson(path);
+                putToCache(cacheNameJson, path, data);
             }
-            throw new ZooKeeperException(e.getCause());
-        } catch (UncheckedExecutionException e) {
-            if (e.getCause() instanceof ZooKeeperException.NodeNotFoundException) {
-                return null;
-            }
-            throw new ZooKeeperException(e.getCause());
+            return data;
         } catch (ZooKeeperException.NodeNotFoundException e) {
             return null;
         } catch (Exception e) {
@@ -434,11 +532,7 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      */
     public String getData(String path) throws ZooKeeperException {
         byte[] data = getDataRaw(path);
-        try {
-            return data != null ? new String(data, "UTF-8") : null;
-        } catch (UnsupportedEncodingException e) {
-            return null;
-        }
+        return data != null ? new String(data, UTF8) : null;
     }
 
     /**
@@ -496,30 +590,26 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
      */
     public boolean setData(String path, String value, boolean createNodes)
             throws ZooKeeperException {
-        try {
-            return _write(path, value != null ? value.getBytes("UTF-8") : null, createNodes);
-        } catch (UnsupportedEncodingException e) {
-            return false;
-        }
-    }
-
-    private void _invalidateCache() {
-        if (cacheRaw != null) {
-            cacheRaw.invalidateAll();
-        }
-
-        if (cacheJson != null) {
-            cacheJson.invalidateAll();
-        }
+        return _write(path, value != null ? value.getBytes(UTF8) : null, createNodes);
     }
 
     private void _invalidateCache(String path) {
-        if (cacheRaw != null) {
-            cacheRaw.invalidate(path);
+        _invalidateCache(path, null);
+    }
+
+    private void _invalidateCache(String path, byte[] newData) {
+        ICache cacheJson = cacheNameJson != null ? getCache(cacheNameJson) : null;
+        if (cacheJson != null) {
+            cacheJson.delete(path);
         }
 
-        if (cacheJson != null) {
-            cacheJson.invalidate(path);
+        ICache cacheRaw = cacheNameRaw != null ? getCache(cacheNameRaw) : null;
+        if (cacheRaw != null) {
+            if (newData == null) {
+                cacheRaw.delete(path);
+            } else {
+                cacheRaw.set(path, newData);
+            }
         }
     }
 
@@ -532,11 +622,10 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         curatorFramework = CuratorFrameworkFactory.newClient(connectString, sessionTimeout, 5000,
                 new RetryNTimes(3, 2000));
         curatorFramework.start();
-        _invalidateCache();
     }
 
     /**
-     * Disconnects rom ZooKeeper server
+     * Disconnects from ZooKeeper server
      * 
      * @throws InterruptedException
      */
@@ -561,115 +650,68 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         _connect();
     }
 
-    private void _destroyCache() {
-        if (cacheRaw != null) {
-            cacheRaw.invalidateAll();
-            cacheRaw = null;
-        }
-
-        if (cacheJson != null) {
-            cacheJson.invalidateAll();
-            cacheJson = null;
-        }
-    }
-
-    private void _initCache() {
-        if (cacheEnabled) {
-            cacheRaw = CacheBuilder.newBuilder()
-                    .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-                    .maximumSize(Integer.MAX_VALUE).expireAfterAccess(3600, TimeUnit.SECONDS)
-                    .build(new CacheLoader<String, byte[]>() {
-                        @Override
-                        public byte[] load(String path) throws Exception {
-                            byte[] result = _readRaw(path);
-                            if (result == null) {
-                                throw new ZooKeeperException.NodeNotFoundException();
-                            }
-                            return result;
-                        }
-                    });
-
-            cacheJson = CacheBuilder.newBuilder()
-                    .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-                    .maximumSize(Integer.MAX_VALUE).expireAfterAccess(3600, TimeUnit.SECONDS)
-                    .build(new CacheLoader<String, Object>() {
-                        @Override
-                        public Object load(String path) throws Exception {
-                            Object result = _readJson(path);
-                            if (result == null) {
-                                throw new ZooKeeperException.NodeNotFoundException();
-                            }
-                            return result;
-                        }
-                    });
-        }
-    }
-
     private void _destroyNodeWatcher() {
         if (cacheNodeWatcher != null) {
-            cacheNodeWatcher.invalidateAll();
-            cacheNodeWatcher = null;
+            try {
+                cacheNodeWatcher.invalidateAll();
+            } finally {
+                cacheNodeWatcher = null;
+            }
         }
     }
 
     private void _initCacheWatcher() {
-        if (cacheEnabled) {
-            cacheNodeWatcher = CacheBuilder.newBuilder()
-                    .concurrencyLevel(Runtime.getRuntime().availableProcessors())
-                    .maximumSize(Integer.MAX_VALUE).expireAfterAccess(3600, TimeUnit.SECONDS)
-                    .removalListener(new RemovalListener<String, NodeCache>() {
-                        @Override
-                        public void onRemoval(RemovalNotification<String, NodeCache> event) {
-                            try {
-                                event.getValue().close();
-                            } catch (IOException e) {
-                                LOGGER.warn(e.getMessage(), e);
+        cacheNodeWatcher = CacheBuilder.newBuilder()
+                .concurrencyLevel(Runtime.getRuntime().availableProcessors()).maximumSize(10000)
+                .expireAfterAccess(3600, TimeUnit.SECONDS)
+                .removalListener(new RemovalListener<String, NodeCache>() {
+                    @Override
+                    public void onRemoval(RemovalNotification<String, NodeCache> event) {
+                        try {
+                            event.getValue().close();
+                        } catch (IOException e) {
+                            LOGGER.warn(e.getMessage(), e);
+                        }
+                    }
+                }).build(new CacheLoader<String, NodeCache>() {
+                    @Override
+                    public NodeCache load(final String path) throws Exception {
+                        final NodeCache nodeCache = new NodeCache(curatorFramework, path);
+                        nodeCache.getListenable().addListener(new NodeCacheListener() {
+                            @Override
+                            public void nodeChanged() throws Exception {
+                                ChildData data = nodeCache.getCurrentData();
+                                _invalidateCache(path, data != null ? data.getData() : null);
                             }
-                        }
-                    }).build(new CacheLoader<String, NodeCache>() {
-                        @Override
-                        public NodeCache load(final String path) throws Exception {
-                            final NodeCache nodeCache = new NodeCache(curatorFramework, path);
-                            nodeCache.getListenable().addListener(new NodeCacheListener() {
-                                @Override
-                                public void nodeChanged() throws Exception {
-                                    _invalidateCache(path);
-                                    ChildData data = nodeCache.getCurrentData();
-                                    if (data != null) {
-                                        cacheRaw.put(path, data.getData());
-                                    }
-                                }
-                            });
-                            nodeCache.start();
-                            return nodeCache;
-                        }
-                    });
-        }
+                        });
+                        nodeCache.start();
+                        return nodeCache;
+                    }
+                });
     }
 
     /**
-     * Initializing method.
-     * 
-     * @throws Exception
+     * {@inheritDoc}
      */
-    public void init() throws Exception {
-        _connect();
-        _initCache();
-        _initCacheWatcher();
-    }
+    @Override
+    public ZooKeeperClient init() {
+        super.init();
 
-    /**
-     * Destroying method.
-     * 
-     * @throws Exception
-     */
-    public void destroy() {
         try {
-            _destroyCache();
+            _connect();
+            _initCacheWatcher();
         } catch (Exception e) {
-            LOGGER.warn(e.getMessage(), e);
+            throw new RuntimeException(e);
         }
 
+        return this;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void destroy() {
         try {
             _destroyNodeWatcher();
         } catch (Exception e) {
@@ -681,6 +723,8 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         } catch (Exception e) {
             LOGGER.warn(e.getMessage(), e);
         }
+
+        super.destroy();
     }
 
     private void _eventNodeChanged(WatchedEvent event) throws ZooKeeperException {
@@ -690,7 +734,7 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         case NodeDataChanged: {
             // reload node data
             byte[] data = _readRaw(path);
-            cacheRaw.put(path, data);
+            _invalidateCache(path, data);
             break;
         }
         case NodeDeleted: {
@@ -716,10 +760,6 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
                 _reconnect();
                 break;
             }
-            case Disconnected: {
-                _invalidateCache();
-                break;
-            }
             case SyncConnected: {
                 _eventNodeChanged(event);
                 break;
@@ -733,6 +773,9 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public void processResult(CuratorFramework curatorFramework, CuratorEvent event)
             throws Exception {
@@ -741,7 +784,6 @@ public class ZooKeeperClient implements Watcher, BackgroundCallback {
         case CHILDREN:
             break;
         case CLOSING:
-            _invalidateCache();
             break;
         case CREATE:
             _invalidateCache(event.getPath());
