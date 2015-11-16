@@ -1,11 +1,12 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
-		<groupId>org.sonatype.oss</groupId>
-		<artifactId>oss-parent</artifactId>
-		<version>7</version>
+		<groupId>com.github.ddth</groupId>
+		<artifactId>ddth-parent</artifactId>
+		<version>5.1</version>
 	</parent>
 
 	<groupId>com.github.ddth</groupId>
@@ -40,11 +41,13 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<version.java>1.6</version.java>
-		<version.guava>13.0</version.guava>
+		<skipTests>true</skipTests>
+
+		<version.curator>3.0.0</version.curator>
 		<version.zookeeper>3.4.6</version.zookeeper>
-		<version.curator>2.4.1</version.curator>
-		<version.ddth-commons>0.2.1</version.ddth-commons>
+
+		<!-- <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> 
+			<version.java>1.6</version.java> <version.guava>13.0</version.guava> <version.ddth-commons>0.2.1</version.ddth-commons> -->
 	</properties>
 
 	<dependencies>
@@ -53,6 +56,12 @@
 			<artifactId>junit</artifactId>
 			<version>4.11</version>
 			<scope>test</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>org.slf4j</groupId>
+					<artifactId>slf4j-simple</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.curator</groupId>
@@ -105,8 +114,9 @@
 
 		<dependency>
 			<groupId>com.github.ddth</groupId>
-			<artifactId>ddth-commons</artifactId>
-			<version>${version.ddth-commons}</version>
+			<artifactId>ddth-commons-serialization</artifactId>
+			<version>0.4.0</version>
+			<type>pom</type>
 		</dependency>
 	</dependencies>
 
