@@ -8,8 +8,8 @@ ddth-zookeeper release notes
 - Set default ZooKeeper session timeout to 30 seconds.
 
 
-0.4 - 2015-11-16
-----------------
+0.4.0 - 2015-11-16
+------------------
 
 - Use `ddth-cache-adapter` for caching.
 - Minor improvements & enhancements.
