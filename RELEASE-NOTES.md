@@ -1,6 +1,13 @@
 ddth-zookeeper release notes
 ============================
 
+0.4.1 - 2015-11-18
+------------------
+
+- APIs to remove node(s) and create ephemeral node.
+- Set default ZooKeeper session timeout to 30 seconds.
+
+
 0.4 - 2015-11-16
 ----------------
 

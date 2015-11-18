@@ -15,6 +15,7 @@ import org.apache.curator.framework.recipes.cache.ChildData;
 import org.apache.curator.framework.recipes.cache.NodeCache;
 import org.apache.curator.framework.recipes.cache.NodeCacheListener;
 import org.apache.curator.retry.RetryNTimes;
+import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.WatchedEvent;
 import org.apache.zookeeper.Watcher;
@@ -42,9 +43,9 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
     private final Logger LOGGER = LoggerFactory.getLogger(ZooKeeperClient.class);
 
     /**
-     * Default session timeout (1 hour, in milliseconds)
+     * Default session timeout (30 seconds, in milliseconds)
      */
-    public final static int DEFAULT_SESSION_TIMEOUT = 3600000;
+    public final static int DEFAULT_SESSION_TIMEOUT = 30000;
 
     private String connectString;
     private int sessionTimeout = DEFAULT_SESSION_TIMEOUT;
@@ -249,26 +250,18 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * 
      * @param path
      * @param data
+     * @param createMode
      * @return
      * @throws ZooKeeperException
      */
-    private boolean _create(String path, byte[] data) throws ZooKeeperException {
+    private boolean _create(String path, byte[] data, CreateMode createMode)
+            throws ZooKeeperException {
         if (data == null) {
             data = ArrayUtils.EMPTY_BYTE_ARRAY;
         }
         try {
-            String[] tokens = path.replaceAll("^\\/+", "").replaceAll("\\/+$", "").split("\\/");
-            StringBuilder _path = new StringBuilder();
-            for (int i = 0, n = tokens.length - 1; i < n; i++) {
-                _path.append("/").append(tokens[i]);
-                try {
-                    curatorFramework.create()
-                            .forPath(_path.toString(), ArrayUtils.EMPTY_BYTE_ARRAY);
-                } catch (KeeperException.NodeExistsException e) {
-                    // ignore
-                }
-            }
-            curatorFramework.create().forPath(path, data);
+            curatorFramework.create().creatingParentsIfNeeded().withMode(createMode)
+                    .forPath(path, data);
             _invalidateCache(path);
             return true;
         } catch (InterruptedException e) {
@@ -355,7 +348,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
         try {
             boolean result = true;
             if (createNodes && !nodeExists(path)) {
-                result = _create(path, data);
+                result = _create(path, data, CreateMode.EPHEMERAL);
             } else {
                 curatorFramework.setData().forPath(path, data);
             }
@@ -378,11 +371,63 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
         }
     }
 
+    private final static Charset UTF8 = Charset.forName("UTF-8");
+
+    /**
+     * Creates an empty ephemeral node.
+     * 
+     * <p>
+     * Note: nodes are created recursively (parent nodes are created if needed).
+     * </p>
+     * 
+     * @param path
+     * @return
+     * @since 0.4.1
+     * @throws ZooKeeperException
+     */
+    public boolean createEphemeralNode(String path) throws ZooKeeperException {
+        return _create(path, null, CreateMode.EPHEMERAL);
+    }
+
+    /**
+     * Creates an ephemeral node, with initial values.
+     * 
+     * <p>
+     * Note: nodes are created recursively (parent nodes are created if needed).
+     * </p>
+     * 
+     * @param path
+     * @param value
+     * @return
+     * @since 0.4.1
+     * @throws ZooKeeperException
+     */
+    public boolean createEphemeralNode(String path, byte[] value) throws ZooKeeperException {
+        return _create(path, value, CreateMode.EPHEMERAL);
+    }
+
+    /**
+     * Creates an ephemeral node, with initial values.
+     * 
+     * <p>
+     * Note: nodes are created recursively (parent nodes are created if needed).
+     * </p>
+     * 
+     * @param path
+     * @param value
+     * @return
+     * @since 0.4.1
+     * @throws ZooKeeperException
+     */
+    public boolean createEphemeralNode(String path, String value) throws ZooKeeperException {
+        return _create(path, value != null ? value.getBytes(UTF8) : null, CreateMode.EPHEMERAL);
+    }
+
     /**
      * Creates an empty node.
      * 
      * <p>
-     * Note: nodes are created recursively.
+     * Note: nodes are created recursively (parent nodes are created if needed).
      * </p>
      * 
      * @param path
@@ -390,14 +435,14 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @throws ZooKeeperException
      */
     public boolean createNode(String path) throws ZooKeeperException {
-        return _create(path, null);
+        return _create(path, null, CreateMode.PERSISTENT);
     }
 
     /**
-     * Creates a node.
+     * Creates a node, with initial values.
      * 
      * <p>
-     * Note: nodes are created recursively.
+     * Note: nodes are created recursively (parent nodes are created if needed).
      * </p>
      * 
      * @param path
@@ -406,16 +451,14 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @throws ZooKeeperException
      */
     public boolean createNode(String path, byte[] value) throws ZooKeeperException {
-        return _create(path, value);
+        return _create(path, value, CreateMode.PERSISTENT);
     }
 
-    private final static Charset UTF8 = Charset.forName("UTF-8");
-
     /**
-     * Creates a node.
+     * Creates a node, with initial values.
      * 
      * <p>
-     * Note: nodes are created recursively.
+     * Note: nodes are created recursively (parent nodes are created if needed).
      * </p>
      * 
      * @param path
@@ -424,7 +467,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @throws ZooKeeperException
      */
     public boolean createNode(String path, String value) throws ZooKeeperException {
-        return _create(path, value != null ? value.getBytes(UTF8) : null);
+        return _create(path, value != null ? value.getBytes(UTF8) : null, CreateMode.PERSISTENT);
     }
 
     /**
@@ -533,6 +576,55 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
     public String getData(String path) throws ZooKeeperException {
         byte[] data = getDataRaw(path);
         return data != null ? new String(data, UTF8) : null;
+    }
+
+    /**
+     * Removes an existing node.
+     * 
+     * <p>
+     * Node with children will not be removed.
+     * </p>
+     * 
+     * @param path
+     * @return {@code true} if node has been removed successfully, {@code false}
+     *         otherwise (maybe node is not empty)
+     * @since 0.4.1
+     * @throws ZooKeeperException
+     */
+    public boolean removeNode(String path) throws ZooKeeperException {
+        return removeNode(path, false);
+    }
+
+    /**
+     * Removes an existing node.
+     * 
+     * @param path
+     * @param removeChildren
+     *            {@code true} to indicate that child nodes should be removed
+     *            too
+     * @return {@code true} if node has been removed successfully, {@code false}
+     *         otherwise (maybe node is not empty)
+     * @since 0.4.1
+     * @throws ZooKeeperException
+     */
+    public boolean removeNode(String path, boolean removeChildren) throws ZooKeeperException {
+        try {
+            if (removeChildren) {
+                curatorFramework.delete().deletingChildrenIfNeeded().forPath(path);
+            } else {
+                curatorFramework.delete().forPath(path);
+            }
+        } catch (KeeperException.NotEmptyException e) {
+            return false;
+        } catch (Exception e) {
+            if (e instanceof ZooKeeperException) {
+                throw (ZooKeeperException) e;
+            } else {
+                throw new ZooKeeperException(e);
+            }
+        }
+        _invalidateCache(path);
+        return true;
     }
 
     /**
