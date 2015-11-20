@@ -10,14 +10,16 @@ public class QndEphemeralNode {
             client.setSessionTimeout(1000);
             client.init();
 
-            String path = "/tmp/a/b/c/d";
+            System.out.println("Delete node [/tmp]: " + client.removeNode("/tmp", true));
+
+            String path = "/nodes/connect/192.168.1.10";
             System.out.println("Create ephemeral node [" + path + "]: "
                     + client.createEphemeralNode(path, "demo"));
         } finally {
-            for (int i = 0; i < 10; i++) {
-                Thread.sleep(1000);
-            }
-            // client.destroy();
+            // for (int i = 0; i < 10; i++) {
+            // Thread.sleep(1000);
+            // }
+            client.destroy();
         }
     }
 
