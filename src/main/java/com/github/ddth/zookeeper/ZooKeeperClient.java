@@ -616,6 +616,8 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
             }
         } catch (KeeperException.NotEmptyException e) {
             return false;
+        } catch (KeeperException.NoNodeException e) {
+            return true;
         } catch (Exception e) {
             if (e instanceof ZooKeeperException) {
                 throw (ZooKeeperException) e;

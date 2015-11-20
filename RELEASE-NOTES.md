@@ -1,6 +1,12 @@
 ddth-zookeeper release notes
 ============================
 
+0.4.1.1 - 2015-11-20
+--------------------
+
+- Bug fix: removing an non-exist node should NOT throw exception.
+
+
 0.4.1 - 2015-11-18
 ------------------
 
