@@ -1,6 +1,13 @@
 ddth-zookeeper release notes
 ============================
 
+0.4.1.2 - 2016-02-17
+--------------------
+
+- Minor changes: make some getters `public`.
+- Change: nodes that are automatically created via `setData(...)` are made `PERSISTENT`.
+
+
 0.4.1.1 - 2015-11-20
 --------------------
 

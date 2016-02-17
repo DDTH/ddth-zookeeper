@@ -91,7 +91,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @return
      * @since 0.4.0
      */
-    protected String getConnectString() {
+    public String getConnectString() {
         return connectString;
     }
 
@@ -137,7 +137,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @return
      * @since 0.4.0
      */
-    protected int getSessionTimeout() {
+    public int getSessionTimeout() {
         return sessionTimeout;
     }
 
@@ -183,7 +183,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @return
      * @since 0.4.0
      */
-    protected String getCacheNameRaw() {
+    public String getCacheNameRaw() {
         return cacheNameRaw;
     }
 
@@ -205,7 +205,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @return
      * @since 0.4.0
      */
-    protected String getCacheNameJson() {
+    public String getCacheNameJson() {
         return cacheNameJson;
     }
 
@@ -227,7 +227,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
      * @return
      * @since 0.4.0
      */
-    protected CuratorFramework getCuratorFramework() {
+    public CuratorFramework getCuratorFramework() {
         return curatorFramework;
     }
 
@@ -348,7 +348,7 @@ public class ZooKeeperClient extends BaseDao implements Watcher, BackgroundCallb
         try {
             boolean result = true;
             if (createNodes && !nodeExists(path)) {
-                result = _create(path, data, CreateMode.EPHEMERAL);
+                result = _create(path, data, CreateMode.PERSISTENT);
             } else {
                 curatorFramework.setData().forPath(path, data);
             }
